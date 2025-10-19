@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import Icon from '@/components/ui/icon';
 import { generateReceipt, generateBulkReceipts } from '@/lib/generateReceipt';
 import { useToast } from '@/hooks/use-toast';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface MeterReading {
   id: string;
@@ -137,6 +138,24 @@ export default function Index() {
       description: `Начата генерация ${residents.length} квитанций`,
     });
   };
+
+  const consumptionData = [
+    { month: 'Май', coldWater: 1320, hotWater: 980, electricity: 51200 },
+    { month: 'Июнь', coldWater: 1280, hotWater: 920, electricity: 48900 },
+    { month: 'Июль', coldWater: 1350, hotWater: 1050, electricity: 52100 },
+    { month: 'Август', coldWater: 1420, hotWater: 1120, electricity: 53800 },
+    { month: 'Сентябрь', coldWater: 1380, hotWater: 1020, electricity: 52400 },
+    { month: 'Октябрь', coldWater: 1438, hotWater: 1042, electricity: 53320 }
+  ];
+
+  const costData = [
+    { month: 'Май', water: 213600, electricity: 296960, total: 510560 },
+    { month: 'Июнь', water: 219840, electricity: 283620, total: 503460 },
+    { month: 'Июль', water: 246420, electricity: 302180, total: 548600 },
+    { month: 'Август', water: 262104, electricity: 312040, total: 574144 },
+    { month: 'Сентябрь', water: 242214, electricity: 303920, total: 546134 },
+    { month: 'Октябрь', water: 248273, electricity: 309256, total: 557529 }
+  ];
 
   const stats = [
     { 
@@ -718,6 +737,57 @@ export default function Index() {
                       <span className="font-semibold">5.80 ₽/кВт·ч</span>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Icon name="TrendingUp" size={20} />
+                    Динамика потребления ресурсов
+                  </CardTitle>
+                  <CardDescription>Объёмы за последние 6 месяцев</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={consumptionData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis yAxisId="left" />
+                      <YAxis yAxisId="right" orientation="right" />
+                      <Tooltip />
+                      <Legend />
+                      <Line yAxisId="left" type="monotone" dataKey="coldWater" stroke="#3b82f6" name="Холодная вода (м³)" strokeWidth={2} />
+                      <Line yAxisId="left" type="monotone" dataKey="hotWater" stroke="#ef4444" name="Горячая вода (м³)" strokeWidth={2} />
+                      <Line yAxisId="right" type="monotone" dataKey="electricity" stroke="#eab308" name="Электричество (кВт·ч)" strokeWidth={2} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Icon name="DollarSign" size={20} />
+                    Стоимость потребления
+                  </CardTitle>
+                  <CardDescription>Расходы на коммунальные услуги (₽)</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={costData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="water" fill="#3b82f6" name="Вода" />
+                      <Bar dataKey="electricity" fill="#eab308" name="Электричество" />
+                      <Bar dataKey="total" fill="#1a1f2c" name="Всего" />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </CardContent>
               </Card>
             </div>
