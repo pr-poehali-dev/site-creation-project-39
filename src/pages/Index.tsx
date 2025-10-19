@@ -4,13 +4,123 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { generateReceipt, generateBulkReceipts } from '@/lib/generateReceipt';
 import { useToast } from '@/hooks/use-toast';
 
+interface MeterReading {
+  id: string;
+  residentId: string;
+  residentName: string;
+  apartment: string;
+  coldWater: number;
+  hotWater: number;
+  electricity: number;
+  date: string;
+  prevColdWater?: number;
+  prevHotWater?: number;
+  prevElectricity?: number;
+}
+
 export default function Index() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const { toast } = useToast();
+  const [meterReadings, setMeterReadings] = useState<MeterReading[]>([
+    {
+      id: '1',
+      residentId: '001234',
+      residentName: 'Иванов И.И.',
+      apartment: '45',
+      coldWater: 156.5,
+      hotWater: 89.3,
+      electricity: 4523,
+      date: '15.10.2024',
+      prevColdWater: 150.3,
+      prevHotWater: 84.8,
+      prevElectricity: 4273
+    },
+    {
+      id: '2',
+      residentId: '001235',
+      residentName: 'Петрова М.С.',
+      apartment: '46',
+      coldWater: 142.8,
+      hotWater: 76.2,
+      electricity: 3856,
+      date: '14.10.2024',
+      prevColdWater: 138.5,
+      prevHotWater: 72.1,
+      prevElectricity: 3706
+    },
+    {
+      id: '3',
+      residentId: '001236',
+      residentName: 'Сидоров П.А.',
+      apartment: '47',
+      coldWater: 198.4,
+      hotWater: 112.6,
+      electricity: 5234,
+      date: '16.10.2024',
+      prevColdWater: 191.2,
+      prevHotWater: 106.8,
+      prevElectricity: 4984
+    },
+    {
+      id: '4',
+      residentId: '001237',
+      residentName: 'Козлова Е.В.',
+      apartment: '48',
+      coldWater: 0,
+      hotWater: 0,
+      electricity: 0,
+      date: '-',
+      prevColdWater: 165.3,
+      prevHotWater: 92.4,
+      prevElectricity: 4123
+    }
+  ]);
+  const [newReading, setNewReading] = useState({
+    coldWater: '',
+    hotWater: '',
+    electricity: ''
+  });
+  const [selectedResident, setSelectedResident] = useState<string | null>(null);
+
+  const handleSubmitReading = () => {
+    if (!selectedResident) return;
+    
+    const resident = residents.find(r => r.id === selectedResident);
+    if (!resident) return;
+
+    const reading: MeterReading = {
+      id: Date.now().toString(),
+      residentId: resident.id,
+      residentName: resident.name,
+      apartment: resident.apartment,
+      coldWater: parseFloat(newReading.coldWater),
+      hotWater: parseFloat(newReading.hotWater),
+      electricity: parseFloat(newReading.electricity),
+      date: new Date().toLocaleDateString('ru-RU'),
+      prevColdWater: meterReadings.find(r => r.residentId === selectedResident)?.coldWater,
+      prevHotWater: meterReadings.find(r => r.residentId === selectedResident)?.hotWater,
+      prevElectricity: meterReadings.find(r => r.residentId === selectedResident)?.electricity
+    };
+
+    setMeterReadings(prev => [
+      reading,
+      ...prev.filter(r => r.residentId !== selectedResident)
+    ]);
+
+    toast({
+      title: 'Показания приняты',
+      description: `Данные для ${resident.name} сохранены`,
+    });
+
+    setNewReading({ coldWater: '', hotWater: '', electricity: '' });
+    setSelectedResident(null);
+  };
 
   const handleGenerateReceipt = (resident: typeof residents[0]) => {
     generateReceipt(resident, 'Октябрь', '2024');
@@ -205,7 +315,7 @@ export default function Index() {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
             <TabsTrigger value="dashboard" className="gap-2">
               <Icon name="LayoutDashboard" size={16} />
               Дашборд
@@ -213,6 +323,10 @@ export default function Index() {
             <TabsTrigger value="residents" className="gap-2">
               <Icon name="Users" size={16} />
               Жильцы
+            </TabsTrigger>
+            <TabsTrigger value="meters" className="gap-2">
+              <Icon name="Gauge" size={16} />
+              Счётчики
             </TabsTrigger>
             <TabsTrigger value="payments" className="gap-2">
               <Icon name="Wallet" size={16} />
@@ -371,6 +485,242 @@ export default function Index() {
                 </Table>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="meters" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Показания счётчиков</CardTitle>
+                    <CardDescription>Учёт расхода воды и электроэнергии</CardDescription>
+                  </div>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="bg-secondary hover:bg-secondary/90">
+                        <Icon name="Plus" size={16} className="mr-2" />
+                        Внести показания
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Внести показания счётчиков</DialogTitle>
+                        <DialogDescription>
+                          Выберите жильца и укажите текущие показания
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Лицевой счёт</label>
+                          <select 
+                            className="w-full p-2 border rounded-md"
+                            value={selectedResident || ''}
+                            onChange={(e) => setSelectedResident(e.target.value)}
+                          >
+                            <option value="">Выберите жильца</option>
+                            {residents.map(r => (
+                              <option key={r.id} value={r.id}>
+                                {r.id} - {r.name} (кв. {r.apartment})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Холодная вода (м³)</label>
+                          <Input 
+                            type="number" 
+                            step="0.1"
+                            placeholder="156.5"
+                            value={newReading.coldWater}
+                            onChange={(e) => setNewReading({...newReading, coldWater: e.target.value})}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Горячая вода (м³)</label>
+                          <Input 
+                            type="number" 
+                            step="0.1"
+                            placeholder="89.3"
+                            value={newReading.hotWater}
+                            onChange={(e) => setNewReading({...newReading, hotWater: e.target.value})}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Электроэнергия (кВт·ч)</label>
+                          <Input 
+                            type="number" 
+                            step="1"
+                            placeholder="4523"
+                            value={newReading.electricity}
+                            onChange={(e) => setNewReading({...newReading, electricity: e.target.value})}
+                          />
+                        </div>
+                        <Button 
+                          className="w-full bg-secondary hover:bg-secondary/90"
+                          onClick={handleSubmitReading}
+                          disabled={!selectedResident || !newReading.coldWater || !newReading.hotWater || !newReading.electricity}
+                        >
+                          Сохранить показания
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Лицевой счет</TableHead>
+                      <TableHead>ФИО</TableHead>
+                      <TableHead>Квартира</TableHead>
+                      <TableHead>Холодная вода</TableHead>
+                      <TableHead>Горячая вода</TableHead>
+                      <TableHead>Электричество</TableHead>
+                      <TableHead>Дата</TableHead>
+                      <TableHead>Статус</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {meterReadings.map((reading) => {
+                      const coldConsumption = reading.prevColdWater ? reading.coldWater - reading.prevColdWater : 0;
+                      const hotConsumption = reading.prevHotWater ? reading.hotWater - reading.prevHotWater : 0;
+                      const electricityConsumption = reading.prevElectricity ? reading.electricity - reading.prevElectricity : 0;
+                      const isSubmitted = reading.coldWater > 0;
+
+                      return (
+                        <TableRow key={reading.id}>
+                          <TableCell className="font-mono">{reading.residentId}</TableCell>
+                          <TableCell className="font-medium">{reading.residentName}</TableCell>
+                          <TableCell>{reading.apartment}</TableCell>
+                          <TableCell>
+                            {isSubmitted ? (
+                              <div>
+                                <div className="font-semibold">{reading.coldWater.toFixed(1)} м³</div>
+                                {coldConsumption > 0 && (
+                                  <div className="text-xs text-muted-foreground">+{coldConsumption.toFixed(1)} м³</div>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground">Не внесено</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {isSubmitted ? (
+                              <div>
+                                <div className="font-semibold">{reading.hotWater.toFixed(1)} м³</div>
+                                {hotConsumption > 0 && (
+                                  <div className="text-xs text-muted-foreground">+{hotConsumption.toFixed(1)} м³</div>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground">Не внесено</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {isSubmitted ? (
+                              <div>
+                                <div className="font-semibold">{reading.electricity} кВт·ч</div>
+                                {electricityConsumption > 0 && (
+                                  <div className="text-xs text-muted-foreground">+{electricityConsumption} кВт·ч</div>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground">Не внесено</span>
+                            )}
+                          </TableCell>
+                          <TableCell>{reading.date}</TableCell>
+                          <TableCell>
+                            {isSubmitted ? (
+                              <Badge className="bg-green-500">Получено</Badge>
+                            ) : (
+                              <Badge variant="secondary">Ожидание</Badge>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-blue-600">
+                    <Icon name="Droplet" size={20} />
+                    Холодная вода
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Средний расход:</span>
+                      <span className="font-semibold">5.8 м³/мес</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Всего за месяц:</span>
+                      <span className="font-semibold">1,438 м³</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Тариф:</span>
+                      <span className="font-semibold">38.50 ₽/м³</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-red-600">
+                    <Icon name="Flame" size={20} />
+                    Горячая вода
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Средний расход:</span>
+                      <span className="font-semibold">4.2 м³/мес</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Всего за месяц:</span>
+                      <span className="font-semibold">1,042 м³</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Тариф:</span>
+                      <span className="font-semibold">185.20 ₽/м³</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-yellow-600">
+                    <Icon name="Zap" size={20} />
+                    Электроэнергия
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Средний расход:</span>
+                      <span className="font-semibold">215 кВт·ч/мес</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Всего за месяц:</span>
+                      <span className="font-semibold">53,320 кВт·ч</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Тариф:</span>
+                      <span className="font-semibold">5.80 ₽/кВт·ч</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="payments" className="space-y-6">
