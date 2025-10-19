@@ -5,9 +5,28 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { generateReceipt, generateBulkReceipts } from '@/lib/generateReceipt';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Index() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const { toast } = useToast();
+
+  const handleGenerateReceipt = (resident: typeof residents[0]) => {
+    generateReceipt(resident, 'Октябрь', '2024');
+    toast({
+      title: 'Квитанция сформирована',
+      description: `PDF-файл для ${resident.name} загружен`,
+    });
+  };
+
+  const handleGenerateAllReceipts = () => {
+    generateBulkReceipts(residents, 'Октябрь', '2024');
+    toast({
+      title: 'Квитанции формируются',
+      description: `Начата генерация ${residents.length} квитанций`,
+    });
+  };
 
   const stats = [
     { 
@@ -290,10 +309,19 @@ export default function Index() {
                     <CardTitle>Лицевые счета</CardTitle>
                     <CardDescription>Управление жильцами и квартирами</CardDescription>
                   </div>
-                  <Button className="bg-secondary hover:bg-secondary/90">
-                    <Icon name="Plus" size={16} className="mr-2" />
-                    Добавить жильца
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline"
+                      onClick={handleGenerateAllReceipts}
+                    >
+                      <Icon name="FileText" size={16} className="mr-2" />
+                      Квитанции всем
+                    </Button>
+                    <Button className="bg-secondary hover:bg-secondary/90">
+                      <Icon name="Plus" size={16} className="mr-2" />
+                      Добавить жильца
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -323,9 +351,19 @@ export default function Index() {
                         </TableCell>
                         <TableCell>{getStatusBadge(resident.status)}</TableCell>
                         <TableCell>
-                          <Button variant="ghost" size="sm">
-                            <Icon name="MoreVertical" size={16} />
-                          </Button>
+                          <div className="flex gap-1">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => handleGenerateReceipt(resident)}
+                              title="Скачать квитанцию"
+                            >
+                              <Icon name="Download" size={16} />
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              <Icon name="MoreVertical" size={16} />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
