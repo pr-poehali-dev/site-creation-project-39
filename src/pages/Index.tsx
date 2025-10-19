@@ -1,355 +1,475 @@
 import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
-import { useToast } from '@/hooks/use-toast';
 
 export default function Index() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: ''
-  });
-  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('dashboard');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: "Заявка отправлена",
-      description: "Мы свяжемся с вами в ближайшее время",
-    });
-    setFormData({ name: '', email: '', phone: '', message: '' });
+  const stats = [
+    { 
+      title: 'Всего лицевых счетов', 
+      value: '248', 
+      icon: 'Users', 
+      change: '+12', 
+      color: 'bg-blue-500' 
+    },
+    { 
+      title: 'Задолженность', 
+      value: '1.2M ₽', 
+      icon: 'AlertCircle', 
+      change: '-8%', 
+      color: 'bg-red-500' 
+    },
+    { 
+      title: 'Оплачено за месяц', 
+      value: '3.8M ₽', 
+      icon: 'CheckCircle', 
+      change: '+15%', 
+      color: 'bg-green-500' 
+    },
+    { 
+      title: 'К начислению', 
+      value: '4.1M ₽', 
+      icon: 'FileText', 
+      change: '+2%', 
+      color: 'bg-yellow-500' 
+    }
+  ];
+
+  const residents = [
+    { 
+      id: '001234', 
+      name: 'Иванов Иван Иванович', 
+      apartment: '45', 
+      balance: -12500, 
+      area: 65.5, 
+      residents: 3,
+      status: 'debt' 
+    },
+    { 
+      id: '001235', 
+      name: 'Петрова Мария Сергеевна', 
+      apartment: '46', 
+      balance: 0, 
+      area: 48.2, 
+      residents: 2,
+      status: 'paid' 
+    },
+    { 
+      id: '001236', 
+      name: 'Сидоров Петр Алексеевич', 
+      apartment: '47', 
+      balance: 8500, 
+      area: 72.0, 
+      residents: 4,
+      status: 'overpaid' 
+    },
+    { 
+      id: '001237', 
+      name: 'Козлова Елена Викторовна', 
+      apartment: '48', 
+      balance: -5200, 
+      area: 54.3, 
+      residents: 2,
+      status: 'debt' 
+    },
+    { 
+      id: '001238', 
+      name: 'Морозов Андрей Николаевич', 
+      apartment: '49', 
+      balance: 0, 
+      area: 62.8, 
+      residents: 3,
+      status: 'paid' 
+    }
+  ];
+
+  const payments = [
+    { 
+      date: '15.10.2024', 
+      account: '001234', 
+      name: 'Иванов И.И.', 
+      amount: 8500, 
+      type: 'Квитанция',
+      status: 'processed' 
+    },
+    { 
+      date: '14.10.2024', 
+      account: '001236', 
+      name: 'Сидоров П.А.', 
+      amount: 12000, 
+      type: 'Онлайн',
+      status: 'processed' 
+    },
+    { 
+      date: '14.10.2024', 
+      account: '001235', 
+      name: 'Петрова М.С.', 
+      amount: 6800, 
+      type: 'Банк',
+      status: 'processed' 
+    },
+    { 
+      date: '13.10.2024', 
+      account: '001238', 
+      name: 'Морозов А.Н.', 
+      amount: 9200, 
+      type: 'Онлайн',
+      status: 'pending' 
+    }
+  ];
+
+  const charges = [
+    { service: 'Содержание и ремонт', rate: 28.50, unit: 'м²' },
+    { service: 'Отопление', rate: 42.30, unit: 'м²' },
+    { service: 'Горячая вода', rate: 185.20, unit: 'м³' },
+    { service: 'Холодная вода', rate: 38.50, unit: 'м³' },
+    { service: 'Водоотведение', rate: 28.90, unit: 'м³' },
+    { service: 'Электроэнергия', rate: 5.80, unit: 'кВт·ч' }
+  ];
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'debt':
+        return <Badge variant="destructive">Задолженность</Badge>;
+      case 'paid':
+        return <Badge className="bg-green-500">Оплачено</Badge>;
+      case 'overpaid':
+        return <Badge className="bg-blue-500">Переплата</Badge>;
+      default:
+        return <Badge variant="secondary">—</Badge>;
+    }
   };
 
-  const benefits = [
-    {
-      icon: "Target",
-      title: "Точная диагностика",
-      description: "Глубокий анализ бизнес-процессов с выявлением скрытых проблем"
-    },
-    {
-      icon: "TrendingUp",
-      title: "Рост прибыли",
-      description: "Стратегии, доказавшие эффективность на практике"
-    },
-    {
-      icon: "Users",
-      title: "Экспертная команда",
-      description: "15+ лет опыта работы с малым и средним бизнесом"
-    },
-    {
-      icon: "Shield",
-      title: "Гарантия результата",
-      description: "Работаем до достижения измеримых показателей"
+  const getPaymentStatusBadge = (status: string) => {
+    switch (status) {
+      case 'processed':
+        return <Badge className="bg-green-500">Обработан</Badge>;
+      case 'pending':
+        return <Badge variant="secondary">В обработке</Badge>;
+      default:
+        return <Badge variant="secondary">—</Badge>;
     }
-  ];
-
-  const services = [
-    {
-      icon: "LineChart",
-      title: "Стратегический консалтинг",
-      description: "Разработка долгосрочной стратегии развития вашего бизнеса с учётом рыночных трендов"
-    },
-    {
-      icon: "Settings",
-      title: "Оптимизация процессов",
-      description: "Автоматизация и улучшение бизнес-процессов для снижения издержек до 40%"
-    },
-    {
-      icon: "DollarSign",
-      title: "Финансовый анализ",
-      description: "Комплексный аудит финансовых потоков и рекомендации по управлению капиталом"
-    },
-    {
-      icon: "Users2",
-      title: "HR-консалтинг",
-      description: "Построение эффективной системы управления персоналом и мотивации команды"
-    }
-  ];
-
-  const testimonials = [
-    {
-      name: "Михаил Петров",
-      company: "ТехноПром",
-      text: "За 6 месяцев работы выручка выросла на 45%. Особенно впечатлила глубина анализа и практичность рекомендаций."
-    },
-    {
-      name: "Елена Соколова",
-      company: "Модный дом Элеганс",
-      text: "Помогли оптимизировать складскую логистику. Сократили издержки на 30% и ускорили поставки в два раза."
-    },
-    {
-      name: "Андрей Васильев",
-      company: "Стройинвест",
-      text: "Профессионалы своего дела. Разработали стратегию выхода на новый рынок – сейчас успешно работаем в трёх регионах."
-    }
-  ];
-
-  const faqs = [
-    {
-      question: "Сколько времени занимает консалтинговый проект?",
-      answer: "Продолжительность зависит от масштаба задач. Экспресс-аудит — 2-3 недели, комплексный проект — от 3 до 6 месяцев. На первой встрече мы определим точные сроки под вашу ситуацию."
-    },
-    {
-      question: "Какая стоимость ваших услуг?",
-      answer: "Мы формируем индивидуальное предложение после бесплатной диагностической сессии. Стоимость зависит от объёма работ и поставленных целей. Средний проект для малого бизнеса — от 200 000 рублей."
-    },
-    {
-      question: "Предоставляете ли гарантии результата?",
-      answer: "Да, мы работаем на основе KPI и фиксируем целевые показатели в договоре. Если результаты не достигнуты по нашей вине — продолжаем работу бесплатно до достижения цели."
-    },
-    {
-      question: "С какими отраслями вы работаете?",
-      answer: "Наша экспертиза охватывает производство, ритейл, услуги, HoReCa, IT и строительство. За 15 лет реализовали более 200 проектов в различных сферах бизнеса."
-    },
-    {
-      question: "Можно ли начать с небольшого проекта?",
-      answer: "Конечно! Мы предлагаем экспресс-диагностику на 2-3 недели. Это позволит оценить наш подход и получить первые результаты без долгосрочных обязательств."
-    }
-  ];
+  };
 
   return (
-    <div className="min-h-screen">
-      <section className="relative bg-gradient-to-br from-primary via-primary/95 to-primary/90 text-primary-foreground py-24 md:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-grid-white/5 bg-[size:30px_30px]"></div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center animate-fade-in">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-              Трансформируем ваш бизнес в прибыльную систему
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 text-primary-foreground/90 font-light">
-              Стратегический консалтинг для малого и среднего бизнеса. Увеличиваем прибыль на 30-50% за 6 месяцев
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button 
-                size="lg" 
-                className="bg-secondary hover:bg-secondary/90 text-secondary-foreground text-lg px-8 py-6 hover-scale"
-                onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                Получить консультацию
-                <Icon name="ArrowRight" size={20} className="ml-2" />
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="bg-transparent border-2 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary text-lg px-8 py-6"
-                onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                Узнать подробнее
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {benefits.map((benefit, index) => (
-              <Card 
-                key={index} 
-                className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-card"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <CardContent className="p-6 text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-secondary/10 rounded-full flex items-center justify-center">
-                    <Icon name={benefit.icon} size={32} className="text-secondary" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">{benefit.title}</h3>
-                  <p className="text-muted-foreground">{benefit.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="services" className="py-20 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">Наши услуги</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Комплексные решения для роста вашего бизнеса
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {services.map((service, index) => (
-              <Card key={index} className="border-2 hover:border-secondary transition-all duration-300 hover:shadow-lg">
-                <CardContent className="p-8">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Icon name={service.icon} size={24} className="text-secondary" />
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-semibold mb-3">{service.title}</h3>
-                      <p className="text-muted-foreground leading-relaxed">{service.description}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">Отзывы клиентов</h2>
-            <p className="text-xl text-muted-foreground">Результаты, которыми гордятся наши партнёры</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="bg-card shadow-md hover:shadow-xl transition-shadow duration-300">
-                <CardContent className="p-8">
-                  <div className="mb-4">
-                    <Icon name="Quote" size={32} className="text-secondary/30" />
-                  </div>
-                  <p className="text-muted-foreground mb-6 leading-relaxed italic">"{testimonial.text}"</p>
-                  <div className="border-t pt-4">
-                    <p className="font-semibold text-lg">{testimonial.name}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.company}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">Частые вопросы</h2>
-            <p className="text-xl text-muted-foreground">Ответы на важные вопросы о консалтинге</p>
-          </div>
-          <div className="max-w-3xl mx-auto">
-            <Accordion type="single" collapsible className="space-y-4">
-              {faqs.map((faq, index) => (
-                <AccordionItem 
-                  key={index} 
-                  value={`item-${index}`}
-                  className="border-2 border-border rounded-lg px-6 data-[state=open]:border-secondary"
-                >
-                  <AccordionTrigger className="text-left text-lg font-semibold hover:no-underline py-6">
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground leading-relaxed pb-6">
-                    {faq.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
-        </div>
-      </section>
-
-      <section id="contact" className="py-20 bg-gradient-to-br from-primary to-primary/90 text-primary-foreground">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4">Получить консультацию</h2>
-              <p className="text-xl text-primary-foreground/90">
-                Оставьте заявку — мы свяжемся с вами в течение 2 часов
-              </p>
-            </div>
-            <Card className="bg-card/95 backdrop-blur">
-              <CardContent className="p-8 md:p-12">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium mb-2 text-card-foreground">Ваше имя *</label>
-                      <Input 
-                        required
-                        placeholder="Иван Иванов"
-                        value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
-                        className="bg-background"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2 text-card-foreground">Email *</label>
-                      <Input 
-                        required
-                        type="email"
-                        placeholder="ivan@company.ru"
-                        value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
-                        className="bg-background"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-card-foreground">Телефон *</label>
-                    <Input 
-                      required
-                      type="tel"
-                      placeholder="+7 (999) 123-45-67"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                      className="bg-background"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-card-foreground">Опишите вашу задачу</label>
-                    <Textarea 
-                      placeholder="Расскажите о вашем бизнесе и целях..."
-                      rows={4}
-                      value={formData.message}
-                      onChange={(e) => setFormData({...formData, message: e.target.value})}
-                      className="bg-background resize-none"
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    size="lg" 
-                    className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground text-lg py-6"
-                  >
-                    Отправить заявку
-                    <Icon name="Send" size={20} className="ml-2" />
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-            
-            <div className="mt-12 text-center">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="flex flex-col items-center">
-                  <Icon name="Phone" size={32} className="mb-3 text-secondary" />
-                  <p className="font-semibold mb-1">Телефон</p>
-                  <a href="tel:+79991234567" className="text-primary-foreground/80 hover:text-secondary transition-colors">
-                    +7 (999) 123-45-67
-                  </a>
-                </div>
-                <div className="flex flex-col items-center">
-                  <Icon name="Mail" size={32} className="mb-3 text-secondary" />
-                  <p className="font-semibold mb-1">Email</p>
-                  <a href="mailto:info@consulting.ru" className="text-primary-foreground/80 hover:text-secondary transition-colors">
-                    info@consulting.ru
-                  </a>
-                </div>
-                <div className="flex flex-col items-center">
-                  <Icon name="MapPin" size={32} className="mb-3 text-secondary" />
-                  <p className="font-semibold mb-1">Офис</p>
-                  <p className="text-primary-foreground/80">Москва, ул. Тверская, 1</p>
-                </div>
+    <div className="min-h-screen bg-muted/30">
+      <header className="bg-primary text-primary-foreground border-b">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center">
+                <Icon name="Building2" size={24} />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold">РасчетныйЦентр</h1>
+                <p className="text-sm text-primary-foreground/80">ТСЖ "Солнечный"</p>
               </div>
             </div>
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10">
+                <Icon name="Bell" size={20} className="mr-2" />
+                Уведомления
+              </Button>
+              <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10">
+                <Icon name="User" size={20} className="mr-2" />
+                Администратор
+              </Button>
+            </div>
           </div>
         </div>
-      </section>
+      </header>
 
-      <footer className="bg-primary/95 text-primary-foreground py-8 border-t border-primary-foreground/10">
-        <div className="container mx-auto px-4">
-          <div className="text-center">
-            <p className="text-primary-foreground/70">© 2024 Бизнес-Консалтинг. Все права защищены.</p>
-          </div>
-        </div>
-      </footer>
+      <div className="container mx-auto px-4 py-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+            <TabsTrigger value="dashboard" className="gap-2">
+              <Icon name="LayoutDashboard" size={16} />
+              Дашборд
+            </TabsTrigger>
+            <TabsTrigger value="residents" className="gap-2">
+              <Icon name="Users" size={16} />
+              Жильцы
+            </TabsTrigger>
+            <TabsTrigger value="payments" className="gap-2">
+              <Icon name="Wallet" size={16} />
+              Платежи
+            </TabsTrigger>
+            <TabsTrigger value="charges" className="gap-2">
+              <Icon name="Calculator" size={16} />
+              Тарифы
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="dashboard" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {stats.map((stat, index) => (
+                <Card key={index} className="hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">
+                        {stat.title}
+                      </CardTitle>
+                      <div className={`${stat.color} w-8 h-8 rounded-lg flex items-center justify-center`}>
+                        <Icon name={stat.icon} size={16} className="text-white" />
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold">{stat.value}</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {stat.change} с прошлого месяца
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Icon name="TrendingUp" size={20} />
+                    Последние платежи
+                  </CardTitle>
+                  <CardDescription>Актуальные поступления</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {payments.slice(0, 4).map((payment, index) => (
+                      <div key={index} className="flex items-center justify-between py-2 border-b last:border-0">
+                        <div>
+                          <p className="font-medium">{payment.name}</p>
+                          <p className="text-sm text-muted-foreground">{payment.date} • {payment.type}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-green-600">+{payment.amount.toLocaleString()} ₽</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Icon name="AlertTriangle" size={20} />
+                    Должники
+                  </CardTitle>
+                  <CardDescription>Требуют внимания</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {residents.filter(r => r.status === 'debt').map((resident, index) => (
+                      <div key={index} className="flex items-center justify-between py-2 border-b last:border-0">
+                        <div>
+                          <p className="font-medium">{resident.name}</p>
+                          <p className="text-sm text-muted-foreground">Кв. {resident.apartment} • ЛС {resident.id}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-red-600">{resident.balance.toLocaleString()} ₽</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="residents" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Лицевые счета</CardTitle>
+                    <CardDescription>Управление жильцами и квартирами</CardDescription>
+                  </div>
+                  <Button className="bg-secondary hover:bg-secondary/90">
+                    <Icon name="Plus" size={16} className="mr-2" />
+                    Добавить жильца
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Лицевой счет</TableHead>
+                      <TableHead>ФИО</TableHead>
+                      <TableHead>Квартира</TableHead>
+                      <TableHead>Площадь</TableHead>
+                      <TableHead>Жильцов</TableHead>
+                      <TableHead>Баланс</TableHead>
+                      <TableHead>Статус</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {residents.map((resident) => (
+                      <TableRow key={resident.id}>
+                        <TableCell className="font-mono">{resident.id}</TableCell>
+                        <TableCell className="font-medium">{resident.name}</TableCell>
+                        <TableCell>{resident.apartment}</TableCell>
+                        <TableCell>{resident.area} м²</TableCell>
+                        <TableCell>{resident.residents}</TableCell>
+                        <TableCell className={resident.balance < 0 ? 'text-red-600 font-semibold' : resident.balance > 0 ? 'text-blue-600 font-semibold' : ''}>
+                          {resident.balance.toLocaleString()} ₽
+                        </TableCell>
+                        <TableCell>{getStatusBadge(resident.status)}</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="sm">
+                            <Icon name="MoreVertical" size={16} />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="payments" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>История платежей</CardTitle>
+                    <CardDescription>Все поступления за текущий период</CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline">
+                      <Icon name="Filter" size={16} className="mr-2" />
+                      Фильтр
+                    </Button>
+                    <Button className="bg-secondary hover:bg-secondary/90">
+                      <Icon name="Download" size={16} className="mr-2" />
+                      Экспорт
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Дата</TableHead>
+                      <TableHead>Лицевой счет</TableHead>
+                      <TableHead>Плательщик</TableHead>
+                      <TableHead>Сумма</TableHead>
+                      <TableHead>Тип платежа</TableHead>
+                      <TableHead>Статус</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {payments.map((payment, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{payment.date}</TableCell>
+                        <TableCell className="font-mono">{payment.account}</TableCell>
+                        <TableCell>{payment.name}</TableCell>
+                        <TableCell className="font-semibold text-green-600">
+                          +{payment.amount.toLocaleString()} ₽
+                        </TableCell>
+                        <TableCell>{payment.type}</TableCell>
+                        <TableCell>{getPaymentStatusBadge(payment.status)}</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="sm">
+                            <Icon name="Eye" size={16} />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="charges" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Тарифы на услуги</CardTitle>
+                    <CardDescription>Действующие расценки на октябрь 2024</CardDescription>
+                  </div>
+                  <Button className="bg-secondary hover:bg-secondary/90">
+                    <Icon name="Edit" size={16} className="mr-2" />
+                    Изменить тарифы
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Наименование услуги</TableHead>
+                      <TableHead>Единица измерения</TableHead>
+                      <TableHead>Тариф</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {charges.map((charge, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">{charge.service}</TableCell>
+                        <TableCell>{charge.unit}</TableCell>
+                        <TableCell className="font-semibold">{charge.rate.toFixed(2)} ₽</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="sm">
+                            <Icon name="History" size={16} />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="Calculator" size={20} />
+                  Калькулятор начислений
+                </CardTitle>
+                <CardDescription>Пример расчёта для квартиры 65 м² с 3 жильцами</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-muted-foreground">Содержание и ремонт (65 м² × 28.50 ₽)</span>
+                    <span className="font-semibold">1,852.50 ₽</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-muted-foreground">Отопление (65 м² × 42.30 ₽)</span>
+                    <span className="font-semibold">2,749.50 ₽</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-muted-foreground">Водоснабжение и водоотведение</span>
+                    <span className="font-semibold">1,890.00 ₽</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-muted-foreground">Электроэнергия (250 кВт·ч × 5.80 ₽)</span>
+                    <span className="font-semibold">1,450.00 ₽</span>
+                  </div>
+                  <div className="flex justify-between pt-3 border-t-2">
+                    <span className="text-lg font-semibold">Итого к оплате:</span>
+                    <span className="text-2xl font-bold text-secondary">7,942.00 ₽</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }
