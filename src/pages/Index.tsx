@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { generateReceipt, generateBulkReceipts } from '@/lib/generateReceipt';
+import { exportResidentsToExcel, exportPaymentsToExcel, exportMeterReadingsToExcel, exportFullReportToExcel } from '@/lib/exportToExcel';
 import { useToast } from '@/hooks/use-toast';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -323,6 +324,21 @@ export default function Index() {
                 <Icon name="Bell" size={20} className="mr-2" />
                 Уведомления
               </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-primary-foreground hover:bg-primary-foreground/10"
+                onClick={() => {
+                  exportFullReportToExcel(residents, payments, meterReadings);
+                  toast({
+                    title: 'Полный отчёт сформирован',
+                    description: 'Excel-файл со всеми данными загружен',
+                  });
+                }}
+              >
+                <Icon name="FileSpreadsheet" size={20} className="mr-2" />
+                Полный отчёт
+              </Button>
               <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10">
                 <Icon name="User" size={20} className="mr-2" />
                 Администратор
@@ -445,14 +461,27 @@ export default function Index() {
                   <div className="flex gap-2">
                     <Button 
                       variant="outline"
+                      onClick={() => {
+                        exportResidentsToExcel(residents);
+                        toast({
+                          title: 'Экспорт выполнен',
+                          description: 'Excel-файл с лицевыми счетами загружен',
+                        });
+                      }}
+                    >
+                      <Icon name="FileSpreadsheet" size={16} className="mr-2" />
+                      Excel
+                    </Button>
+                    <Button 
+                      variant="outline"
                       onClick={handleGenerateAllReceipts}
                     >
                       <Icon name="FileText" size={16} className="mr-2" />
-                      Квитанции всем
+                      Квитанции
                     </Button>
                     <Button className="bg-secondary hover:bg-secondary/90">
                       <Icon name="Plus" size={16} className="mr-2" />
-                      Добавить жильца
+                      Добавить
                     </Button>
                   </div>
                 </div>
@@ -514,13 +543,27 @@ export default function Index() {
                     <CardTitle>Показания счётчиков</CardTitle>
                     <CardDescription>Учёт расхода воды и электроэнергии</CardDescription>
                   </div>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button className="bg-secondary hover:bg-secondary/90">
-                        <Icon name="Plus" size={16} className="mr-2" />
-                        Внести показания
-                      </Button>
-                    </DialogTrigger>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline"
+                      onClick={() => {
+                        exportMeterReadingsToExcel(meterReadings);
+                        toast({
+                          title: 'Экспорт выполнен',
+                          description: 'Excel-файл с показаниями загружен',
+                        });
+                      }}
+                    >
+                      <Icon name="FileSpreadsheet" size={16} className="mr-2" />
+                      Excel
+                    </Button>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button className="bg-secondary hover:bg-secondary/90">
+                          <Icon name="Plus" size={16} className="mr-2" />
+                          Внести показания
+                        </Button>
+                      </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
                         <DialogTitle>Внести показания счётчиков</DialogTitle>
@@ -583,7 +626,8 @@ export default function Index() {
                         </Button>
                       </div>
                     </DialogContent>
-                  </Dialog>
+                    </Dialog>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -806,9 +850,18 @@ export default function Index() {
                       <Icon name="Filter" size={16} className="mr-2" />
                       Фильтр
                     </Button>
-                    <Button className="bg-secondary hover:bg-secondary/90">
+                    <Button 
+                      className="bg-secondary hover:bg-secondary/90"
+                      onClick={() => {
+                        exportPaymentsToExcel(payments);
+                        toast({
+                          title: 'Экспорт выполнен',
+                          description: 'Excel-файл с платежами загружен',
+                        });
+                      }}
+                    >
                       <Icon name="Download" size={16} className="mr-2" />
-                      Экспорт
+                      Excel
                     </Button>
                   </div>
                 </div>
